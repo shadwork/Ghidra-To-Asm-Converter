@@ -51,6 +51,15 @@ class LineProcessor(private val line: String) {
         "0123456789ABCDEF".forEach {
             beforePostProcessing = beforePostProcessing.replace("db ${it}h","db 0${it}h")
         }
+        // processing single words
+        val indexDw = beforePostProcessing.indexOf("dw ")
+        if(indexDw>=0) {
+            val wordData = beforePostProcessing.substring(indexDw+3)
+            val valueHex = wordData.replace("0x","").replace("h","")
+            val decimal = Integer.decode("0x" + valueHex)
+            val hexFormatted = "%04x".format(decimal)
+            beforePostProcessing = "dw 0x${hexFormatted}"
+        }
         // ptr is not needed
         beforePostProcessing = beforePostProcessing.replace(" ptr","")
         // .rep should be cutted

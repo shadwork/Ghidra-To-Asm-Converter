@@ -20,9 +20,9 @@ class StreamProcessor(private val streamIn: InputStream, private val streamOut: 
                 label = " ".repeat(label.length)
                 if(line.trim().isNotEmpty()) {
                     writer.write(line)
-                    //print(line)
+                    print(line)
                     writer.newLine()
-                    //println()
+                    println()
                 }
             }
         }
