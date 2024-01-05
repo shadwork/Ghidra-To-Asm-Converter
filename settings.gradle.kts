@@ -1,3 +1,3 @@
 
-rootProject.name = "GhidraToNASMx86Converter"
+rootProject.name = "GhidraToAsmConverter"
 

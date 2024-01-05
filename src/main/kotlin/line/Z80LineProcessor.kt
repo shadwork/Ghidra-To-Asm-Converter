@@ -1,11 +1,18 @@
-class LineProcessor(private val line: String) {
-    fun process(): String {
+package line
+
+import LineProcessorInterface
+import StreamProcessor
+import WordTypes
+import item.Z80ItemProcessor
+
+class Z80LineProcessor : LineProcessorInterface  {
+    override fun process(line: String): String {
         val data = line.split(StreamProcessor.delimiterSafe)
         val builder = StringBuilder()
 
         for (item in data) {
-            val word = ItemProcessor(item)
-            when (word.getType()) {
+            val word = Z80ItemProcessor().detectType(item)
+            when (word) {
                 WordTypes.RAM_ADDRESS -> {
 
                 }

@@ -1,12 +1,25 @@
+import item.X86ItemProcessor
+import item.Z80ItemProcessor
 import kotlinx.cli.*
+import line.X86LineProcessor
+import line.Z80LineProcessor
 import java.io.*
-
+enum class CPUType {
+    X86,
+    Z80
+}
 fun main(args: Array<String>) {
-    println("Ghidra to Nasm parser 1.0")
-    println("Convert result of disassembling x86 real mode code into NASM assembler format")
+    println("Ghidra to Assembler parser 1.1a")
+    println("Convert result of Ghidra disassembling into assembler format")
+    println("Processors support: `${CPUType.values().joinToString(",")}`")
     val parser = ArgParser("")
     val nameInput by parser.option(ArgType.String, shortName = "i", description = "Input file name").required()
     val nameOutput by parser.option(ArgType.String, shortName = "o", description = "Output file name").required()
+    val targetProcessor by parser.option(
+        ArgType.Choice( CPUType.values().toList(),{it}),
+        shortName = "t",
+        description = "Target processor type"
+    ).required()
     parser.parse(args)
 
     lateinit var inputStream: InputStream
@@ -25,7 +38,25 @@ fun main(args: Array<String>) {
         kotlin.system.exitProcess(SystemConstants.SYSTEM_STATUS_CODE_FILE_NOT_FOUND)
     }
 
-    val processor = StreamProcessor(inputStream, outputStream)
+    lateinit var itemProcessorInterface: ItemProcessorInterface
+    lateinit var lineProcessorInterface: LineProcessorInterface
+
+    when (targetProcessor.toString().lowercase()) {
+        CPUType.X86.toString().lowercase() -> {
+            itemProcessorInterface = X86ItemProcessor()
+            lineProcessorInterface = X86LineProcessor()
+        }
+        CPUType.Z80.toString().lowercase() -> {
+            itemProcessorInterface = Z80ItemProcessor()
+            lineProcessorInterface = Z80LineProcessor()
+        }
+        else -> {
+            println("Error: Unknown target processor")
+            kotlin.system.exitProcess(SystemConstants.SYSTEM_STATUS_CODE_WRONG_CPU)
+        }
+    }
+
+    val processor = StreamProcessor(lineProcessorInterface,itemProcessorInterface, inputStream, outputStream)
     processor.process()
 
     inputStream.close()
@@ -34,7 +65,8 @@ fun main(args: Array<String>) {
     kotlin.system.exitProcess(SystemConstants.SYSTEM_STATUS_CODE_SUCCESS)
 }
 
-object SystemConstants{
+object SystemConstants {
+    const val SYSTEM_STATUS_CODE_WRONG_CPU = 2
     const val SYSTEM_STATUS_CODE_FILE_NOT_FOUND = 1
     const val SYSTEM_STATUS_CODE_SUCCESS = 0
 }

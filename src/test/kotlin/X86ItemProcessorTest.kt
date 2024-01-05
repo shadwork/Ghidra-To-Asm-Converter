@@ -1,7 +1,8 @@
+import item.X86ItemProcessor
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class ItemProcessorTest {
+internal class X86ItemProcessorTest {
 
     private var VALID_RAM_ADDRESS = "ram:0000:26bc"
     private var INVALID_RAM_ADDRESS =arrayOf("ram:00z0:26bc", "ram-00z0:26bc", "ram:00z0a26bc", "rOm:00z0:26bc","ram:0000","ram:0000:26bcaar")
@@ -38,14 +39,14 @@ internal class ItemProcessorTest {
 
     private fun validateElement(item:String, type:WordTypes){
         VALID_ITEMS.forEach {
-            assertEquals(it == item, ItemProcessor(it).getType() == type)
+            assertEquals(it == item, X86ItemProcessor().detectType(it) == type)
         }
     }
 
     @Test
     fun testUndefinedItems() {
         INVALID_ITEMS.forEach {
-            assertEquals(WordTypes.UNDEFINED, ItemProcessor(it).getType())
+            assertEquals(WordTypes.UNDEFINED, X86ItemProcessor().detectType(it))
         }
     }
 

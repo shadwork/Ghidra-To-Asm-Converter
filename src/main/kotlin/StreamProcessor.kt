@@ -2,15 +2,15 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 
-class StreamProcessor(private val streamIn: InputStream, private val streamOut: OutputStream) {
+class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor:ItemProcessorInterface,val streamIn: InputStream, private val streamOut: OutputStream) {
 
     fun process() {
         val writer = streamOut.bufferedWriter(Charset.defaultCharset())
         val labelLength = 24
         var label = " ".repeat(labelLength)
         streamIn.bufferedReader().forEachLine {
-            var line = LineProcessor(dryStringWithDelimiter(it)).process()
-            if(ItemProcessor(line).detectType() == WordTypes.LABEL){
+            var line = lineProcessor.process(dryStringWithDelimiter(it))
+            if(itemProcessor.detectType(line) == WordTypes.LABEL){
                 label = line
                 if(label.length<labelLength){
                     label += " ".repeat(labelLength - label.length)

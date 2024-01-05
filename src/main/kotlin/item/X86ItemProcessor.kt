@@ -1,12 +1,15 @@
-﻿class ItemProcessor(private val word: String) {
+﻿package item
 
-    private val result: WordTypes by lazy { detectType() }
+import ItemProcessorInterface
+import WordTypes
 
-    fun detectType(): WordTypes {
-        return detectType(word)
+class X86ItemProcessor : ItemProcessorInterface {
+
+    override fun detectType(word: String): WordTypes {
+        return detect(word)
     }
 
-    private fun detectType(word: String): WordTypes {
+    private fun detect(word: String): WordTypes {
         if (isRamAddress(word)) {
             return WordTypes.RAM_ADDRESS
         }else if (isAsmData(word)) {
@@ -82,10 +85,6 @@
     private fun isStructIndex(word: String): Boolean {
         val matcher = ("^([0-9A-Fa-f]{2})+$").toRegex()
         return matcher.findAll(word).count() > 0
-    }
-
-    fun getType(): WordTypes {
-        return result
     }
 
     companion object {
