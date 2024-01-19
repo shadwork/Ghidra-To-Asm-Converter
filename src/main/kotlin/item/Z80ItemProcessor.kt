@@ -24,6 +24,8 @@ public class Z80ItemProcessor(): ItemProcessorInterface {
             return WordTypes.DATA_INDEX
         } else if (isDataArray(word)) {
             return WordTypes.DATA_ARRAY
+        } else if (isCharArray(word)) {
+            return WordTypes.CHAR_ARRAY
         } else if (isComment(word)) {
             return WordTypes.COMMENT
         }else if (isAsmCommand(word)) {
@@ -35,7 +37,7 @@ public class Z80ItemProcessor(): ItemProcessorInterface {
     }
 
     private fun isRamAddress(word: String): Boolean {
-        val matcher = ("^ram:[0-9A-Fa-f]{4}:[0-9A-Fa-f]{4}$").toRegex()
+        val matcher = ("^ram:ram:[0-9A-Fa-f]{4}$").toRegex()
         return matcher.findAll(word).count() > 0
     }
 
@@ -50,7 +52,7 @@ public class Z80ItemProcessor(): ItemProcessorInterface {
     }
 
     private fun isRamStruct(word: String): Boolean {
-        val matcher = ("^\\|_ram:[0-9A-Fa-f]{4}:[0-9A-Fa-f]{4}$").toRegex()
+        val matcher = ("^\\|_ram:ram:[0-9A-Fa-f]{4}$").toRegex()
         return matcher.findAll(word).count() > 0
     }
 
@@ -60,7 +62,12 @@ public class Z80ItemProcessor(): ItemProcessorInterface {
     }
 
     private fun isDataArray(word: String): Boolean {
-        val matcher = ("^\\D\\w*\\[(\\d)+\\]$").toRegex()
+        val matcher = ("^db\\[(\\d)+\\]$").toRegex()
+        return matcher.findAll(word).count() > 0
+    }
+
+    private fun isCharArray(word: String): Boolean {
+        val matcher = ("^char\\[(\\d)+\\]$").toRegex()
         return matcher.findAll(word).count() > 0
     }
 

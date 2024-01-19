@@ -1,11 +1,11 @@
-import item.X86ItemProcessor
+import item.Z80ItemProcessor
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class Z80ItemProcessorTest {
 
-    private var VALID_RAM_ADDRESS = "ram:0000:26bc"
-    private var INVALID_RAM_ADDRESS =arrayOf("ram:00z0:26bc", "ram-00z0:26bc", "ram:00z0a26bc", "rOm:00z0:26bc","ram:0000","ram:0000:26bcaar")
+    private var VALID_RAM_ADDRESS = "ram:ram:26bc"
+    private var INVALID_RAM_ADDRESS =arrayOf("ram:00z0:26bc", "ram-00z0:26bc", "ram:00z0a26bc", "rOm:ram:26bc","ram:ram:26bcaar")
 
     private var VALID_HEX_VALUE = "e9ed1a"
     private var INVALID_HEX_VALUE = arrayOf("e","e9ed1","e9ed1Z","aa12d","-aa12","add")
@@ -13,14 +13,17 @@ internal class Z80ItemProcessorTest {
     private var VALID_HEX_CROPPED = "2a2a2a202..."
     private var INVALID_HEX_CROPPED = arrayOf("2a2a2a202....","2a2a2a202..","2a2a2a202.")
 
-    private var VALID_RAM_STRUCT = "|_ram:0000:035d"
-    private var INVALID_RAM_STRUCT =arrayOf("12ram:00z0:26bc","||_ram:00z0:26bc","_||_raO:00z0:26bc","|_ram:00z0:26vc","|_ram:00z0:26vc323")
+    private var VALID_RAM_STRUCT = "|_ram:ram:035d"
+    private var INVALID_RAM_STRUCT =arrayOf("12ram:ram:26bc","||_ram:ram:26bc","_||_raO:ram:26bc","|_ram:ram:26vc","|_ram:ram:26vc323")
 
     private var VALID_DATA_INDEX = "[1]"
     private var INVALID_DATA_INDEX = arrayOf("[d]","[]","[32","3234]","[[2]]")
 
     private var VALID_DATA_ARRAY = "db[128]"
     private var INVALID_DATA_ARRAY = arrayOf("1db[128]","[][]db[128]","sdf[23s]")
+
+    private var VALID_CHAR_ARRAY = "char[4]"
+    private var INVALID_CHAR_ARRAY = arrayOf("1char[128]","[][]char[128]","sdchaf[23s]")
 
     private var VALID_COMMENT= ";comment"
     private var INVALID_COMMENT = arrayOf(":")
@@ -34,19 +37,19 @@ internal class Z80ItemProcessorTest {
     private var VALID_ASM_DATA= "ds"
     private var INVALID_ASM_DATA = arrayOf("dk")
 
-    private var VALID_ITEMS = arrayOf(VALID_RAM_ADDRESS,VALID_HEX_VALUE,VALID_HEX_CROPPED,VALID_RAM_STRUCT,VALID_DATA_INDEX,VALID_DATA_ARRAY,VALID_COMMENT,VALID_ASM_COMMAND,VALID_ASM_DATA)
-    private var INVALID_ITEMS = arrayOf("",*INVALID_RAM_ADDRESS,*INVALID_HEX_VALUE,*INVALID_HEX_CROPPED,*INVALID_RAM_STRUCT,*INVALID_DATA_INDEX,*INVALID_DATA_ARRAY,*INVALID_COMMENT,*INVALID_ASM_COMMAND,*INVALID_LABEL,*INVALID_ASM_DATA)
+    private var VALID_ITEMS = arrayOf(VALID_RAM_ADDRESS,VALID_HEX_VALUE,VALID_HEX_CROPPED,VALID_RAM_STRUCT,VALID_DATA_INDEX,VALID_DATA_ARRAY,VALID_COMMENT,VALID_ASM_COMMAND,VALID_ASM_DATA,VALID_CHAR_ARRAY)
+    private var INVALID_ITEMS = arrayOf("",*INVALID_RAM_ADDRESS,*INVALID_HEX_VALUE,*INVALID_HEX_CROPPED,*INVALID_RAM_STRUCT,*INVALID_DATA_INDEX,*INVALID_DATA_ARRAY,*INVALID_COMMENT,*INVALID_ASM_COMMAND,*INVALID_LABEL,*INVALID_ASM_DATA,*INVALID_CHAR_ARRAY)
 
     private fun validateElement(item:String, type:WordTypes){
         VALID_ITEMS.forEach {
-            assertEquals(it == item, X86ItemProcessor().detectType(it) == type)
+            assertEquals(it == item, Z80ItemProcessor().detectType(it) == type)
         }
     }
 
     @Test
     fun testUndefinedItems() {
         INVALID_ITEMS.forEach {
-            assertEquals(WordTypes.UNDEFINED, X86ItemProcessor().detectType(it))
+            assertEquals(WordTypes.UNDEFINED, Z80ItemProcessor().detectType(it))
         }
     }
 
@@ -77,7 +80,7 @@ internal class Z80ItemProcessorTest {
 
     @Test
     fun testDataArrayValid() {
-        validateElement(VALID_DATA_ARRAY,WordTypes.DATA_ARRAY)
+        validateElement(VALID_CHAR_ARRAY,WordTypes.CHAR_ARRAY)
     }
 
     @Test

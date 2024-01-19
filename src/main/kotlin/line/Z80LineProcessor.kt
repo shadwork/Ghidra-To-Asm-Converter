@@ -31,6 +31,9 @@ class Z80LineProcessor : LineProcessorInterface  {
                 WordTypes.DATA_ARRAY -> {
 
                 }
+                WordTypes.CHAR_ARRAY -> {
+                    builder.append(item)
+                }
                 WordTypes.COMMENT -> {
                     builder.append(item)
                 }
@@ -50,10 +53,22 @@ class Z80LineProcessor : LineProcessorInterface  {
             }
         }
         var beforePostProcessing = builder.toString().trim()
+        // remove all single char connected to char array like char 'B'
+        val matcherOfSingleChar = ("char \'.+\'").toRegex()
+        matcherOfSingleChar.findAll(beforePostProcessing).forEach {
+            beforePostProcessing = beforePostProcessing.replace(it.value,"")
+        }
         // Ugly hacks here
         beforePostProcessing = beforePostProcessing.replace("db db","db")
-        // no ds in nasm for string
-        beforePostProcessing = beforePostProcessing.replace("ds \"","db \"")
+        // convert addr into dw with label
+        beforePostProcessing = beforePostProcessing.replace("addr","dw")
+        // char array for fixed length string
+        val matcherOfCharArray = ("char\\[(\\d)+\\]").toRegex()
+        matcherOfCharArray.findAll(beforePostProcessing).forEach {
+            beforePostProcessing = beforePostProcessing.replace(it.value,"db")
+        }
+        // actually no ds in sjasm for string constant but db
+        beforePostProcessing = beforePostProcessing.replace("ds","db")
         // one char hex to zero trailed hex
         "0123456789ABCDEF".forEach {
             beforePostProcessing = beforePostProcessing.replace("db ${it}h","db 0${it}h")
@@ -63,22 +78,27 @@ class Z80LineProcessor : LineProcessorInterface  {
         if(indexDw>=0) {
             val wordData = beforePostProcessing.substring(indexDw+3)
             val valueHex = wordData.replace("0x","").replace("h","")
-            val decimal = Integer.decode("0x" + valueHex)
-            val hexFormatted = "%04x".format(decimal)
-            beforePostProcessing = "dw 0x${hexFormatted}"
+            try {
+                val decimal = Integer.decode("0x" + valueHex)
+                val hexFormatted = "%04x".format(decimal)
+                beforePostProcessing = "dw 0x${hexFormatted}"
+            }catch (e:Exception){
+
+            }
         }
-        // ptr is not needed
-        beforePostProcessing = beforePostProcessing.replace(" ptr","")
-        // .rep should be cutted
-        val indexRep = beforePostProcessing.indexOf(".REP")
-        if(indexRep>=0) {
-            beforePostProcessing = beforePostProcessing.substring(0,indexRep)
+
+        // remove array index in references like HL=>GAME_STATE_INIT[1]
+        val matcherGhidraLinksArrayIndex = ("\\[\\d+\\]").toRegex()
+        matcherGhidraLinksArrayIndex.findAll(beforePostProcessing).forEach {
+            beforePostProcessing = beforePostProcessing.replace(it.value,"")
         }
-        // but rep prefix needed by nasm
-        beforePostProcessing = beforePostProcessing.replace("MOVSB","REP MOVSB")
-        beforePostProcessing = beforePostProcessing.replace("MOVSW","REP MOVSW")
-        // remove ghidra links
-        beforePostProcessing = beforePostProcessing.substringBefore("=>")
+        // replace links =>-> into common references
+        beforePostProcessing = beforePostProcessing.replace("=>->","=>")
+        // smart remove ghidra links
+        val matcherGhidraLinks = ("=>\\w+").toRegex()
+        matcherGhidraLinks.findAll(beforePostProcessing).forEach {
+            beforePostProcessing = beforePostProcessing.replace(it.value,"")
+        }
         // change unknown bytes into nop
         beforePostProcessing = beforePostProcessing.replace("?? 90h","NOP")
         // add 0x prefix into hex values

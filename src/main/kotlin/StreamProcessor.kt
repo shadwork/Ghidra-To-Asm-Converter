@@ -1,8 +1,9 @@
+
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 
-class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor:ItemProcessorInterface,val streamIn: InputStream, private val streamOut: OutputStream) {
+class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor:ItemProcessorInterface,val streamIn: InputStream, private val streamOut: OutputStream,val echo:Boolean) {
 
     fun process() {
         val writer = streamOut.bufferedWriter(Charset.defaultCharset())
@@ -20,9 +21,13 @@ class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor
                 label = " ".repeat(label.length)
                 if(line.trim().isNotEmpty()) {
                     writer.write(line)
-                    print(line)
+                    if(echo){
+                        print(line)
+                    }
                     writer.newLine()
-                    println()
+                    if(echo){
+                        println()
+                    }
                 }
             }
         }

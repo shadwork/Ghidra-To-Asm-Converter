@@ -8,17 +8,20 @@ enum class CPUType {
     X86,
     Z80
 }
+
 fun main(args: Array<String>) {
     println("Ghidra to Assembler parser 1.1a")
     println("Convert result of Ghidra disassembling into assembler format")
-    println("Processors support: `${CPUType.values().joinToString(",")}`")
+    println("Processors supported: `${CPUType.values().joinToString(",")}`")
     val parser = ArgParser("")
-    val nameInput by parser.option(ArgType.String, shortName = "i", description = "Input file name").required()
-    val nameOutput by parser.option(ArgType.String, shortName = "o", description = "Output file name").required()
+    val nameInput by parser.option(ArgType.String, fullName = "input", shortName = "i", description = "Input file name").required()
+    val nameOutput by parser.option(ArgType.String,fullName = "output", shortName = "o", description = "Output file name").required()
+    val printEcho by parser.option(ArgType.Boolean,fullName = "echo", shortName = "e", description = "Mirror output text to screen").default(false)
     val targetProcessor by parser.option(
         ArgType.Choice( CPUType.values().toList(),{it}),
-        shortName = "t",
-        description = "Target processor type"
+        shortName = "c",
+        fullName = "cpu",
+        description = "Target processor type",
     ).required()
     parser.parse(args)
 
@@ -56,7 +59,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    val processor = StreamProcessor(lineProcessorInterface,itemProcessorInterface, inputStream, outputStream)
+    val processor = StreamProcessor(lineProcessorInterface,itemProcessorInterface, inputStream, outputStream,printEcho)
     processor.process()
 
     inputStream.close()
