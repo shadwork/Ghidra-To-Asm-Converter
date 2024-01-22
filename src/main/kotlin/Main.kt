@@ -1,4 +1,4 @@
-migration import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
@@ -11,7 +11,6 @@ import item.Z80ItemProcessor
 import line.X86LineProcessor
 import line.Z80LineProcessor
 import java.io.*
-import java.util.*
 
 enum class CPUType {
     X86,
@@ -68,7 +67,6 @@ class ParserArgs: CliktCommand(name = "ghidra2asm",help = "Ghidra to Assembler p
 }
 fun main(args: Array<String>) = ParserArgs().main(args)
 object SystemConstants {
-    const val SYSTEM_STATUS_CODE_WRONG_CPU = 2
     const val SYSTEM_STATUS_CODE_FILE_NOT_FOUND = 1
     const val SYSTEM_STATUS_CODE_SUCCESS = 0
 }
