@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.*
 
 plugins {
     kotlin("jvm") version "1.8.0"
@@ -6,15 +7,18 @@ plugins {
 }
 
 group = "org.shadwork.ghidra.asm.converter"
-version = "1.0-SNAPSHOT"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
+    implementation("com.github.ajalt.mordant:mordant:2.2.0")
+    implementation("com.github.ajalt.clikt:clikt:4.2.2")
     implementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    implementation("com.mikepenz:multiplatform-markdown-renderer-jvm:0.9.0")
+    implementation("net.java.dev.jna:jna:5.13.0")
     testImplementation(kotlin("test"))
 }
 
@@ -39,3 +43,18 @@ tasks.jar {
     }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+
+tasks.register("generateBuildConfig") {
+    doLast {
+        val configFile = file("src/${sourceSets.main.name}/kotlin/BuildConfig.kt")
+        val content = "class BuildConfig {\n" +
+                "    companion object {\n" +
+                "        const val version = \"${version}\"\n" +
+                "    }\n" +
+                "}"
+        configFile.parentFile.mkdirs()
+        configFile.writeText(content)
+    }
+}
+
+tasks.getByName("processResources").dependsOn("generateBuildConfig")

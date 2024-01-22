@@ -11,8 +11,8 @@ You should export disassembled code from Ghidra in Ascii with following options
 Download GhidraToAsmConverter from releases and pass exported file with processor type as arguments
  
 - **-i** input file name
- - **-o** output file name
- - **-t** processor architecture (x86 or z80)
+- **-o** output file name
+- **-t** processor architecture (x86 or z80)
 
 ## Usage
 ```
