@@ -96,4 +96,8 @@ class X86LineProcessor : LineProcessorInterface  {
 
         return beforePostProcessing
     }
+
+    override fun charPerLineLimit(): Int {
+        return 65535
+    }
 }

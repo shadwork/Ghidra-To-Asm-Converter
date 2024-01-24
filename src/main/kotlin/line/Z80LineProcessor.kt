@@ -10,6 +10,7 @@ class Z80LineProcessor : LineProcessorInterface  {
         val data = line.split(StreamProcessor.delimiterSafe)
         val builder = StringBuilder()
 
+        var prevType = WordTypes.UNDEFINED
         for (item in data) {
             val word = Z80ItemProcessor().detectType(item)
             when (word) {
@@ -17,7 +18,9 @@ class Z80LineProcessor : LineProcessorInterface  {
 
                 }
                 WordTypes.HEX_VALUE -> {
-
+                    if(prevType== WordTypes.ASM_COMMAND){
+                        builder.append(item)
+                    }
                 }
                 WordTypes.HEX_CROPPED -> {
 
@@ -48,6 +51,7 @@ class Z80LineProcessor : LineProcessorInterface  {
                 }
                 else -> builder.append(item)
             }
+            prevType = word
             if (item.isNotEmpty()) {
                 builder.append(" ")
             }
@@ -83,7 +87,7 @@ class Z80LineProcessor : LineProcessorInterface  {
                 val hexFormatted = "%04x".format(decimal)
                 beforePostProcessing = "dw 0x${hexFormatted}"
             }catch (e:Exception){
-
+                System.err.println("Hex not recognized")
             }
         }
 
@@ -116,5 +120,9 @@ class Z80LineProcessor : LineProcessorInterface  {
         }
 
         return beforePostProcessing
+    }
+
+    override fun charPerLineLimit(): Int {
+        return 80
     }
 }

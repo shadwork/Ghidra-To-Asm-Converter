@@ -1,4 +1,5 @@
 
+import java.io.BufferedWriter
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
@@ -20,18 +21,39 @@ class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor
                 line = "$label $line"
                 label = " ".repeat(label.length)
                 if(line.trim().isNotEmpty()) {
-                    writer.write(line)
-                    if(echo){
-                        print(line)
+                    if(line.length>lineProcessor.charPerLineLimit()){
+                        if(line.contains("db \"")){
+                            val firstLine = line.substring(0,line.indexOf("db \"")+4)
+                            val text = line.substring(line.indexOf("db \"")+4,line.lastIndexOf("\""))
+                            var portions = text.chunked(80)
+                            println("$firstLine${portions.first()}\"")
+                            portions = portions.drop(1)
+                            portions.forEach {
+                                println("$label db \"${it}\"")
+                            }
+                        }
+                    }else{
+                        printEcho(writer,line)
                     }
-                    writer.newLine()
-                    if(echo){
-                        println()
-                    }
+                    printlnEcho(writer)
                 }
             }
         }
         writer.flush()
+    }
+
+    fun printEcho(writer: BufferedWriter, line: String){
+        writer.write(line)
+        if(echo){
+            print(line)
+        }
+    }
+
+    fun printlnEcho(writer: BufferedWriter){
+        writer.newLine()
+        if(echo){
+            println()
+        }
     }
 
     companion object {
