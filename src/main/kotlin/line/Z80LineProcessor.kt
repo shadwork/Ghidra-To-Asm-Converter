@@ -87,7 +87,7 @@ class Z80LineProcessor : LineProcessorInterface  {
                 val hexFormatted = "%04x".format(decimal)
                 beforePostProcessing = "dw 0x${hexFormatted}"
             }catch (e:Exception){
-                System.err.println("Hex not recognized")
+
             }
         }
 
