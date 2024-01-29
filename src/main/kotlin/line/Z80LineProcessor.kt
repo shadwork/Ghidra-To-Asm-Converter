@@ -99,10 +99,17 @@ class Z80LineProcessor : LineProcessorInterface  {
         // replace links =>-> into common references
         beforePostProcessing = beforePostProcessing.replace("=>->","=>")
         // smart remove ghidra links
-        val matcherGhidraLinks = ("=>\\w+").toRegex()
+        val matcherGhidraLinks = ("=>[\\w\\+\\.]+").toRegex()
         matcherGhidraLinks.findAll(beforePostProcessing).forEach {
             beforePostProcessing = beforePostProcessing.replace(it.value,"")
         }
+        // remove ::links
+        val matcherGhidraColon = ("::[\\w\\+]+").toRegex()
+        matcherGhidraColon.findAll(beforePostProcessing).forEach {
+            beforePostProcessing = beforePostProcessing.replace(it.value,"")
+        }
+        // fix ROM addresses with EXT_ram_
+        beforePostProcessing = beforePostProcessing.replace(" EXT_ram_"," 0x")
         // change unknown bytes into nop
         beforePostProcessing = beforePostProcessing.replace("?? 90h","NOP")
         // add 0x prefix into hex values

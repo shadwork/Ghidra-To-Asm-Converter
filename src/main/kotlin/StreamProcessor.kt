@@ -8,7 +8,7 @@ class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor
 
     fun process() {
         val writer = streamOut.bufferedWriter(Charset.defaultCharset())
-        val labelLength = 24
+        val labelLength = 32
         var label = " ".repeat(labelLength)
         streamIn.bufferedReader().forEachLine {
             var line = lineProcessor.process(dryStringWithDelimiter(it))
@@ -24,13 +24,18 @@ class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor
                     if(line.length>lineProcessor.charPerLineLimit()){
                         if(line.contains("db \"")){
                             val firstLine = line.substring(0,line.indexOf("db \"")+4)
-                            val text = line.substring(line.indexOf("db \"")+4,line.lastIndexOf("\""))
-                            var portions = text.chunked(80)
-                            printEcho(writer,"$firstLine${portions.first()}\"\n")
-                            portions = portions.drop(1)
-                            portions.forEach {
-                                printEcho(writer,"$label db \"${it}\"\n")
+                            if(line.indexOf("db \"")+4 < line.lastIndexOf("\"")) {
+                                val text = line.substring(line.indexOf("db \"") + 4, line.lastIndexOf("\""))
+                                var portions = text.chunked(lineProcessor.charPerLineLimit())
+                                printEcho(writer, "$firstLine${portions.first()}\"\n")
+                                portions = portions.drop(1)
+                                portions.forEach {
+                                    printEcho(writer, "$label db \"${it}\"\n")
+                                }
                             }
+                        }else{
+                            printEcho(writer,line)
+                            printlnEcho(writer)
                         }
                     }else{
                         printEcho(writer,line)
@@ -42,14 +47,14 @@ class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor
         writer.flush()
     }
 
-    private fun printEcho(writer: BufferedWriter, line: String){
+     fun printEcho(writer: BufferedWriter, line: String){
         writer.write(line)
         if(echo){
             print(line)
         }
     }
 
-    private fun printlnEcho(writer: BufferedWriter){
+    fun printlnEcho(writer: BufferedWriter){
         writer.newLine()
         if(echo){
             println()

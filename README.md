@@ -15,5 +15,6 @@ Download jar file from releases and pass exported file with processor type as ar
 java -jar GhidraToAsmConverter-1.0.1.jar source.txt destination.asm -c X86
 ```
 ## Limitations
- - labels for function should add manually
+ - labels for function should be added manually
  - structure definition not works correctly
+ - index register need manual fix with changed wrong offset operator
