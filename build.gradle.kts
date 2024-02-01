@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.*
 
 plugins {
     kotlin("jvm") version "1.8.0"
@@ -7,7 +6,7 @@ plugins {
 }
 
 group = "org.shadwork.ghidra.asm.converter"
-version = "1.0.1"
+version = "1.1.0"
 
 repositories {
     mavenCentral()

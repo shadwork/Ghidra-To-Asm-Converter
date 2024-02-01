@@ -8,38 +8,46 @@ class StreamProcessor(val lineProcessor:LineProcessorInterface,val itemProcessor
 
     fun process() {
         val writer = streamOut.bufferedWriter(Charset.defaultCharset())
-        val labelLength = 32
+        val labelLength = 44
         var label = " ".repeat(labelLength)
         streamIn.bufferedReader().forEachLine {
             var line = lineProcessor.process(dryStringWithDelimiter(it))
-            if(itemProcessor.detectType(line) == WordTypes.LABEL){
+            if (itemProcessor.detectType(line) == WordTypes.LABEL) {
                 label = line
-                if(label.length<labelLength){
+                if (label.length < labelLength) {
                     label += " ".repeat(labelLength - label.length)
                 }
-            }else{
-                line = "$label $line"
-                label = " ".repeat(label.length)
-                if(line.trim().isNotEmpty()) {
-                    if(line.length>lineProcessor.charPerLineLimit()){
-                        if(line.contains("db \"")){
-                            val firstLine = line.substring(0,line.indexOf("db \"")+4)
-                            if(line.indexOf("db \"")+4 < line.lastIndexOf("\"")) {
+            } else {
+                line = "$label$line"
+                if (line.trim().isNotEmpty()) {
+                    if (line.length > lineProcessor.charPerLineLimit()) {
+                        if (line.contains("db \"")) {
+                            val endLine = line.substring(line.lastIndexOf("\""))
+                            if (line.indexOf("db \"") + 4 < line.lastIndexOf("\"")) {
                                 val text = line.substring(line.indexOf("db \"") + 4, line.lastIndexOf("\""))
-                                var portions = text.chunked(lineProcessor.charPerLineLimit())
-                                printEcho(writer, "$firstLine${portions.first()}\"\n")
-                                portions = portions.drop(1)
-                                portions.forEach {
-                                    printEcho(writer, "$label db \"${it}\"\n")
-                                }
+                                val portions = text.chunked(lineProcessor.charPerLineLimit())
+                                    portions.forEachIndexed { index, it: String ->
+                                        if(index<portions.size-1) {
+                                            printEcho(writer, "${label}db \"${it}\"\n") }
+                                        else{
+                                            printEcho(writer, "${label}db \"${it}${endLine}\n")
+                                        }
+                                        label = " ".repeat(labelLength)
+                                    }
+                            } else {
+                                printEcho(writer, line)
+                                printlnEcho(writer)
+                                label = " ".repeat(labelLength)
                             }
-                        }else{
-                            printEcho(writer,line)
+                        } else {
+                            printEcho(writer, line)
                             printlnEcho(writer)
+                            label = " ".repeat(labelLength)
                         }
                     }else{
-                        printEcho(writer,line)
+                        printEcho(writer, line)
                         printlnEcho(writer)
+                        label = " ".repeat(labelLength)
                     }
                 }
             }

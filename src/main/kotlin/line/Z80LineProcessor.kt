@@ -71,6 +71,13 @@ class Z80LineProcessor : LineProcessorInterface  {
         matcherOfCharArray.findAll(beforePostProcessing).forEach {
             beforePostProcessing = beforePostProcessing.replace(it.value,"db")
         }
+        // ds should represent as zero terminated string
+        if(beforePostProcessing.contains("ds")){
+            val matcherOfString = ("\".+\"").toRegex()
+            matcherOfString.findAll(beforePostProcessing).forEach {
+                beforePostProcessing = beforePostProcessing.replace(it.value,it.value + ",0")
+            }
+        }
         // actually no ds in sjasm for string constant but db
         beforePostProcessing = beforePostProcessing.replace("ds","db")
         // one char hex to zero trailed hex
