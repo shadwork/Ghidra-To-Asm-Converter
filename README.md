@@ -18,3 +18,7 @@ java -jar GhidraToAsmConverter-1.0.1.jar source.txt destination.asm -c X86
  - labels for function should be added manually
  - structure definition not works correctly
  - index register need manual fix with changed wrong offset operator
+
+## Additional info
+ - [ZX Spectrum System variables is Ghidra](../gdt/zx_spectrum_sys_var.gdt)
+
